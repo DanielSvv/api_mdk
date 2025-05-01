@@ -2,9 +2,9 @@
   "name": "api-node-ts",
   "version": "1.0.0",
   "description": "API Node.js com TypeScript",
-  "main": "src/server.ts",
+  "main": "server.ts",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
     "build": "tsc",
     "start": "node dist/server.js"
   },

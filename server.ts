@@ -1,15 +1,16 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import "./scheduler/parcelas";
+import "./src/scheduler/parcelas";
 
-import clientesRoutes from "./routes/clientes";
-import emprestimosRoutes from "./routes/emprestimos";
-import parcelasRoutes from "./routes/parcelas";
-import modelosMensagemRoutes from "./routes/modelosMensagem";
-import webhookRouter from "./routes/webhook";
-import authRouter from "./routes/auth";
-import adminRouter from "./routes/admin";
+import clientesRoutes from "./src/routes/clientes";
+import emprestimosRoutes from "./src/routes/emprestimos";
+import parcelasRoutes from "./src/routes/parcelas";
+import modelosMensagemRoutes from "./src/routes/modelosMensagem";
+import webhookRouter from "./src/routes/webhook";
+import authRouter from "./src/routes/auth";
+import adminRouter from "./src/routes/admin";
+import testeRouter from "./src/routes/teste";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(cors());
 app.use(express.json());
 
 // Rotas
+app.use("/api/teste", testeRouter); // Nova rota de teste (sem autenticação)
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/clientes", clientesRoutes);
