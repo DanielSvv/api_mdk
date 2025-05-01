@@ -142,6 +142,15 @@ export const clienteService = {
     if (error) throw error;
     return data;
   },
+
+  async deletarCliente(id: number) {
+    const { error } = await supabase
+      .from("clientes")
+      .delete()
+      .eq("id_cliente", id.toString());
+    if (error) throw error;
+    return true;
+  },
 };
 
 // Funções para Empréstimos
