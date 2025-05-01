@@ -52,8 +52,22 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ error: "Cliente não encontrado" });
     }
     res.json(cliente);
+  } catch (error: any) {
+    return res.status(500).json({
+      error: "Erro ao atualizar cliente",
+      detalhe: error.message || error.toString(),
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
+  }
+});
+
+// Deletar cliente
+router.delete("/:id", async (req, res) => {
+  try {
+    await clienteService.deletarCliente(Number(req.params.id));
+    res.status(204).send();
   } catch (error) {
-    res.status(500).json({ error: "Erro ao atualizar cliente" });
+    res.status(500).json({ error: "Erro ao deletar cliente" });
   }
 });
 
