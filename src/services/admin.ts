@@ -12,19 +12,11 @@ export const adminService = {
 
       if (error) {
         console.error("Erro ao verificar tabela:", error);
-        // Se a tabela não existe, vamos criá-la
-        const createTable = `
-          CREATE TABLE IF NOT EXISTS administradores (
-            id_admin SERIAL PRIMARY KEY,
-            nome VARCHAR(255) NOT NULL,
-            email VARCHAR(255) UNIQUE NOT NULL,
-            senha VARCHAR(255) NOT NULL,
-            data_criacao TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-          );
-          CREATE INDEX IF NOT EXISTS idx_administradores_email ON administradores(email);
-        `;
+        // Se a tabela não existe, vamos criar usando RPC
+        const { error: createError } = await supabase.rpc(
+          "criar_tabela_administradores"
+        );
 
-        const { error: createError } = await supabase.sql(createTable);
         if (createError) {
           throw createError;
         }
