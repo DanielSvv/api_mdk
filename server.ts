@@ -16,6 +16,9 @@ dotenv.config();
 
 const app = express();
 
+// Confia no proxy (Nginx) para HTTPS e IP real
+app.set("trust proxy", 1);
+
 // Middlewares
 app.use(cors());
 app.use(express.json());
