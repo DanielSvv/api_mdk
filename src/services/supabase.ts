@@ -64,6 +64,17 @@ export const clienteService = {
     return { data, error };
   },
 
+  async buscarClientePorCpf(cpf: string) {
+    const { data, error } = await supabase
+      .from("clientes")
+      .select("*")
+      .eq("cpf", cpf)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
   async criarCliente(
     cliente: Omit<
       Database["public"]["Tables"]["clientes"]["Insert"],
