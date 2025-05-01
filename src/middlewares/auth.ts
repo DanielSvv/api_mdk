@@ -1,4 +1,3 @@
-/*
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
@@ -10,20 +9,6 @@ export interface AuthRequest extends Request {
     tipo: "admin" | "cliente";
   };
 }
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: any;
-    }
-  }
-}
-
-// Middlewares fake para desabilitar autenticação durante testes
-export const verificarToken = (req, res, next) => next();
-export const verificarAdmin = (req, res, next) => next();
-export const verificarCliente = (req, res, next) => next();
-export const authMiddleware = (req, res, next) => next();
 
 // Middleware para verificar token JWT
 export const verificarToken = (
@@ -79,42 +64,3 @@ export const verificarCliente = (
   }
   next();
 };
-
-export const authMiddleware = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    // Verificar se o header Authorization existe
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: "Token não fornecido" });
-    }
-
-    // Verificar se o formato do token está correto
-    const parts = authHeader.split(" ");
-    if (parts.length !== 2) {
-      return res.status(401).json({ error: "Token mal formatado" });
-    }
-
-    const [scheme, token] = parts;
-    if (!/^Bearer$/i.test(scheme)) {
-      return res.status(401).json({ error: "Token mal formatado" });
-    }
-
-    // Verificar se o token é válido
-    const secret = process.env.JWT_SECRET || "sua_chave_secreta";
-    jwt.verify(token, secret, (err: any, decoded: any) => {
-      if (err) {
-        return res.status(401).json({ error: "Token inválido" });
-      }
-
-      req.user = decoded;
-      return next();
-    });
-  } catch (error) {
-    return res.status(500).json({ error: "Erro ao verificar token" });
-  }
-};
-*/
