@@ -37,7 +37,11 @@ router.post("/", async (req, res) => {
     if (error.message === "Cliente duplicado") {
       return res.status(409).json({ error: "Cliente duplicado" });
     }
-    res.status(500).json({ error: "Erro ao criar cliente" });
+    return res.status(500).json({
+      error: "Erro ao criar cliente",
+      detalhe: error.message || error.toString(),
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
   }
 });
 
@@ -52,12 +56,8 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ error: "Cliente não encontrado" });
     }
     res.json(cliente);
-  } catch (error: any) {
-    return res.status(500).json({
-      error: "Erro ao atualizar cliente",
-      detalhe: error.message || error.toString(),
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-    });
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao atualizar cliente" });
   }
 });
 
