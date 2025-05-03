@@ -35,7 +35,12 @@ router.get("/:id", async (req, res) => {
     if (!cliente) {
       return res.status(404).json({ error: "Cliente não encontrado" });
     }
-    res.json(cliente);
+    // Buscar empréstimos do cliente
+    const { emprestimoService } = require("../services/supabase");
+    const emprestimos = await emprestimoService.listarEmprestimosPorCliente(
+      Number(req.params.id)
+    );
+    res.json({ ...cliente, emprestimos });
   } catch (error) {
     res.status(500).json({ error: "Erro ao buscar cliente" });
   }

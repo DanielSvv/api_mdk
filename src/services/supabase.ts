@@ -174,14 +174,20 @@ export const emprestimoService = {
   },
 
   async buscarEmprestimoPorId(id: number) {
-    const { data, error } = await supabase
+    const { data: emprestimo, error } = await supabase
       .from("emprestimos")
       .select("*")
       .eq("id_emprestimo", id)
       .single();
-
     if (error) throw error;
-    return data;
+    if (!emprestimo) return null;
+    // Buscar parcelas relacionadas
+    const { data: parcelas, error: errorParcelas } = await supabase
+      .from("parcelas")
+      .select("*")
+      .eq("id_emprestimo", id);
+    if (errorParcelas) throw errorParcelas;
+    return { ...emprestimo, parcelas };
   },
 
   async criarEmprestimo(
@@ -289,21 +295,29 @@ export const emprestimoService = {
   },
 
   async cancelarEmprestimo(id_emprestimo: number) {
-    const { error: errorEmprestimo } = await supabase
-      .from("emprestimos")
-      .update({ status_emprestimo: "cancelado" })
-      .eq("id_emprestimo", id_emprestimo.toString());
-
-    if (errorEmprestimo) throw errorEmprestimo;
-
+    // Deletar todas as parcelas vinculadas ao empréstimo
     const { error: errorParcelas } = await supabase
       .from("parcelas")
-      .update({ status_pagamento: "cancelada" })
-      .eq("id_emprestimo", id_emprestimo.toString())
-      .eq("status_pagamento", "agendada");
-
+      .delete()
+      .eq("id_emprestimo", id_emprestimo.toString());
     if (errorParcelas) throw errorParcelas;
+
+    // Deletar o empréstimo
+    const { error: errorEmprestimo } = await supabase
+      .from("emprestimos")
+      .delete()
+      .eq("id_emprestimo", id_emprestimo.toString());
+    if (errorEmprestimo) throw errorEmprestimo;
     return true;
+  },
+
+  async listarEmprestimosPorCliente(id_cliente: number) {
+    const { data, error } = await supabase
+      .from("emprestimos")
+      .select("*")
+      .eq("id_cliente", id_cliente);
+    if (error) throw error;
+    return data;
   },
 };
 
