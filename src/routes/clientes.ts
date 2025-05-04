@@ -2,13 +2,19 @@ import express from "express";
 import { clienteService } from "../services/supabase";
 import multer from "multer";
 import path from "path";
-import { supabase } from "../config/supabase";
+import { createClient } from "@supabase/supabase-js";
 
 const router = express.Router();
 
 // Configuração do multer para arquivos em memória
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+
+// Novo client do Supabase usando a service key para upload
+const supabaseService = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
 
 // Listar todos os clientes
 router.get("/", async (req, res) => {
@@ -76,19 +82,23 @@ router.post(
           const file = files[field][0];
           const ext = path.extname(file.originalname) || ".bin";
           const fileName = `${field}_${Date.now()}${ext}`;
-          const { data, error } = await supabase.storage
+          const { data, error } = await supabaseService.storage
             .from("clientes")
             .upload(fileName, file.buffer, {
               contentType: file.mimetype,
               upsert: true,
             });
           if (error) {
+            console.log(
+              `Erro detalhado do Supabase ao fazer upload de ${field}:`,
+              error
+            );
             return res
               .status(500)
               .json({ error: `Erro ao fazer upload de ${field}` });
           }
           // Gerar URL pública
-          const { data: publicUrl } = supabase.storage
+          const { data: publicUrl } = supabaseService.storage
             .from("clientes")
             .getPublicUrl(fileName);
           body[field] = publicUrl.publicUrl;
@@ -97,6 +107,7 @@ router.post(
       const cliente = await clienteService.criarCliente(body);
       res.status(201).json(cliente);
     } catch (error: any) {
+      console.log("Erro ao criar cliente:", error);
       if (error.message === "Cliente duplicado") {
         return res.status(409).json({ error: "Cliente duplicado" });
       }
@@ -132,19 +143,23 @@ router.put(
           const file = files[field][0];
           const ext = path.extname(file.originalname) || ".bin";
           const fileName = `${field}_${Date.now()}${ext}`;
-          const { data, error } = await supabase.storage
+          const { data, error } = await supabaseService.storage
             .from("clientes")
             .upload(fileName, file.buffer, {
               contentType: file.mimetype,
               upsert: true,
             });
           if (error) {
+            console.log(
+              `Erro detalhado do Supabase ao fazer upload de ${field}:`,
+              error
+            );
             return res
               .status(500)
               .json({ error: `Erro ao fazer upload de ${field}` });
           }
           // Gerar URL pública
-          const { data: publicUrl } = supabase.storage
+          const { data: publicUrl } = supabaseService.storage
             .from("clientes")
             .getPublicUrl(fileName);
           body[field] = publicUrl.publicUrl;
@@ -159,6 +174,7 @@ router.put(
       }
       res.json(cliente);
     } catch (error) {
+      console.log("Erro ao atualizar cliente:", error);
       res.status(500).json({ error: "Erro ao atualizar cliente" });
     }
   }
@@ -167,6 +183,41 @@ router.put(
 // Deletar cliente
 router.delete("/:id", async (req, res) => {
   try {
+    // Buscar cliente para pegar as URLs dos arquivos
+    const cliente = await clienteService.buscarClientePorId(
+      Number(req.params.id)
+    );
+    if (!cliente) {
+      return res.status(404).json({ error: "Cliente não encontrado" });
+    }
+    const fileFields = [
+      "contrato_aluguel",
+      "comprovante_residencial",
+      "foto_documento_selfie",
+    ];
+    const filesToDelete: string[] = [];
+    for (const field of fileFields) {
+      const url = cliente[field];
+      if (url) {
+        // Extrair o nome do arquivo da URL
+        const parts = url.split("/");
+        const fileName = parts[parts.length - 1];
+        filesToDelete.push(fileName);
+      }
+    }
+    // Excluir arquivos do Supabase Storage
+    if (filesToDelete.length > 0) {
+      const { data, error } = await supabaseService.storage
+        .from("clientes")
+        .remove(filesToDelete);
+      if (error) {
+        console.log("Erro ao remover arquivos do Storage:", error);
+        return res
+          .status(500)
+          .json({ error: "Erro ao remover arquivos do Storage" });
+      }
+    }
+    // Excluir cliente do banco
     await clienteService.deletarCliente(Number(req.params.id));
     res.status(204).send();
   } catch (error) {
