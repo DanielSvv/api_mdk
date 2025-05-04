@@ -11,6 +11,7 @@ import webhookRouter from "./src/routes/webhook";
 import authRouter from "./src/routes/auth";
 import adminRouter from "./src/routes/admin";
 import testeRouter from "./src/routes/teste";
+import antecipacaoRouter from "./src/routes/antecipacao";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/api/emprestimos", emprestimosRoutes);
 app.use("/api/parcelas", parcelasRoutes);
 app.use("/api/modelos-mensagem", modelosMensagemRoutes);
 app.use("/api/webhook", webhookRouter);
+app.use("/antecipacao", antecipacaoRouter);
 
 // Rota de teste
 app.get("/", (req, res) => {

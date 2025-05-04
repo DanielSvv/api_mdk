@@ -17,7 +17,7 @@ const verificarToken = (
 ) => {
   const token = req.headers["access_token"] as string;
   const ACCESS_TOKEN =
-    "$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRjZGRlOGJhLTAyMTktNDc1Yi1hNzdiLTFiMDA0Y2VmNjUyNDo6JGFhY2hfZjE1Y2Q0ZDctNTJkYi00MTNiLTllMjEtZGEyNjM0Nzg0ZTdm";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjcsInRpcG8iOiJjbGllbnRlIiwiaWF0IjoxNzQ2MzcwNDkwLCJleHAiOjE3NDY0NTY4OTB9.CySeP-4Q6KuFPDWyLCmF-JSoFtBRtH7gIbY9tH0nvGo";
 
   if (!token) {
     return res.status(401).json({ error: "Token não fornecido" });
@@ -113,11 +113,11 @@ router.post("/", async (req, res) => {
       }
     }
 
-    // Atualizar status das parcelas para canceladas
+    // Atualizar status das parcelas para antecipadas
     const parcelasIds = parcelasParaAntecipar.map((p) => p.id_parcela);
     await supabase
       .from("parcelas")
-      .update({ status_pagamento: "cancelada" })
+      .update({ status_pagamento: "antecipada" })
       .in("id_parcela", parcelasIds);
 
     // Criar nova parcela única com valor total
