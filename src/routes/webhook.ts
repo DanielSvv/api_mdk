@@ -196,6 +196,46 @@ router.post("/", async (req, res) => {
       },
     });
 
+    // Atualizar status da parcela para 'pago'
+    const { supabase } = require("../services/supabase");
+    await supabase
+      .from("parcelas")
+      .update({ status_pagamento: "pago" })
+      .eq("numero_parcela", parcela)
+      .eq(
+        "id_emprestimo",
+        payment.installment ||
+          payment.installmentId ||
+          payment.id_emprestimo ||
+          null
+      );
+
+    // Verificar se todas as parcelas do empréstimo estão pagas
+    const idEmprestimo =
+      payment.installment ||
+      payment.installmentId ||
+      payment.id_emprestimo ||
+      null;
+    if (idEmprestimo) {
+      const { data: parcelasRestantes, error: errorParcelasRestantes } =
+        await supabase
+          .from("parcelas")
+          .select("id_parcela")
+          .eq("id_emprestimo", idEmprestimo)
+          .not("status_pagamento", "eq", "pago");
+      if (
+        !errorParcelasRestantes &&
+        parcelasRestantes &&
+        parcelasRestantes.length === 0
+      ) {
+        // Todas as parcelas estão pagas, atualizar status do empréstimo
+        await supabase
+          .from("emprestimos")
+          .update({ status_emprestimo: "pago" })
+          .eq("id_emprestimo", idEmprestimo);
+      }
+    }
+
     res
       .status(200)
       .json({ success: true, message: "Comprovante enviado com sucesso!" });
