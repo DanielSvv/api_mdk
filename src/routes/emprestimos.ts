@@ -6,7 +6,10 @@ const router = express.Router();
 // Listar todos os empréstimos
 router.get("/", async (req, res) => {
   try {
-    const emprestimos = await emprestimoService.listarEmprestimos();
+    const status_emprestimo = req.query.status_emprestimo as string | undefined;
+    const emprestimos = await emprestimoService.listarEmprestimos(
+      status_emprestimo
+    );
     res.json(emprestimos);
   } catch (error) {
     res.status(500).json({ error: "Erro ao listar empréstimos" });

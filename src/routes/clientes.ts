@@ -16,6 +16,16 @@ const supabaseService = createClient(
   process.env.SUPABASE_SERVICE_KEY!
 );
 
+// Função utilitária para formatar telefone
+function formatarTelefone(telefone: string) {
+  if (!telefone) return telefone;
+  let tel = telefone.replace(/\D/g, "");
+  if (!tel.startsWith("55")) {
+    tel = "55" + tel;
+  }
+  return tel;
+}
+
 // Listar todos os clientes
 router.get("/", async (req, res) => {
   try {
@@ -70,6 +80,10 @@ router.post(
   async (req, res) => {
     try {
       const body = req.body;
+      // Formatar telefone
+      if (body.telefone) {
+        body.telefone = formatarTelefone(body.telefone);
+      }
       const files = req.files as Record<string, Express.Multer.File[]>;
       const fileFields = [
         "contrato_aluguel",
@@ -131,6 +145,10 @@ router.put(
   async (req, res) => {
     try {
       const body = req.body;
+      // Formatar telefone
+      if (body.telefone) {
+        body.telefone = formatarTelefone(body.telefone);
+      }
       const files = req.files as Record<string, Express.Multer.File[]>;
       const fileFields = [
         "contrato_aluguel",

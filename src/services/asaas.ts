@@ -1,9 +1,15 @@
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
 
-const ASAAS_API_URL = "https://api.asaas.com/v3";
-const ASAAS_API_KEY =
-  process.env.ASAAS_API_KEY ||
-  "$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRjZGRlOGJhLTAyMTktNDc1Yi1hNzdiLTFiMDA0Y2VmNjUyNDo6JGFhY2hfZjE1Y2Q0ZDctNTJkYi00MTNiLTllMjEtZGEyNjM0Nzg0ZTdm";
+const ASAAS_API_URL = process.env.ASAAS_API_URL;
+const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
+
+if (!ASAAS_API_URL || !ASAAS_API_KEY) {
+  throw new Error(
+    "Variáveis de ambiente ASAAS_API_URL e ASAAS_API_KEY são obrigatórias. Configure no .env"
+  );
+}
 
 interface AsaasClientePayload {
   name: string;

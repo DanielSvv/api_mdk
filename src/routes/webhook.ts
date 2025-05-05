@@ -30,7 +30,7 @@ const verificarToken = (
 };
 
 // Aplicar middleware de verificação de token em todas as rotas
-router.use(verificarToken);
+// router.use(verificarToken);
 
 const whatsappApiUrl =
   "https://evolutionapi-evolution-api.pqfhfk.easypanel.host/message/sendMedia/Mdk";
@@ -201,21 +201,16 @@ router.post("/", async (req, res) => {
     await supabase
       .from("parcelas")
       .update({ status_pagamento: "pago" })
-      .eq("numero_parcela", parcela)
-      .eq(
-        "id_emprestimo",
-        payment.installment ||
-          payment.installmentId ||
-          payment.id_emprestimo ||
-          null
-      );
+      .eq("asaas_payment_id", payment.id);
 
     // Verificar se todas as parcelas do empréstimo estão pagas
-    const idEmprestimo =
-      payment.installment ||
-      payment.installmentId ||
-      payment.id_emprestimo ||
-      null;
+    // Buscar a parcela para pegar o id_emprestimo
+    const { data: parcelaDb } = await supabase
+      .from("parcelas")
+      .select("id_emprestimo")
+      .eq("asaas_payment_id", payment.id)
+      .single();
+    const idEmprestimo = parcelaDb?.id_emprestimo;
     if (idEmprestimo) {
       const { data: parcelasRestantes, error: errorParcelasRestantes } =
         await supabase
