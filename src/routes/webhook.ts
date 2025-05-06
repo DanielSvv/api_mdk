@@ -7,31 +7,6 @@ import { clienteService } from "../services/supabase";
 
 const router = express.Router();
 
-const ACCESS_TOKEN =
-  "$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRjZGRlOGJhLTAyMTktNDc1Yi1hNzdiLTFiMDA0Y2VmNjUyNDo6JGFhY2hfZjE1Y2Q0ZDctNTJkYi00MTNiLTllMjEtZGEyNjM0Nzg0ZTdm";
-
-// Middleware para verificar o token
-const verificarToken = (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) => {
-  const token = req.headers["access_token"] as string;
-
-  if (!token) {
-    return res.status(401).json({ error: "Token não fornecido" });
-  }
-
-  if (token !== ACCESS_TOKEN) {
-    return res.status(403).json({ error: "Token inválido" });
-  }
-
-  next();
-};
-
-// Aplicar middleware de verificação de token em todas as rotas
-// router.use(verificarToken);
-
 const whatsappApiUrl =
   "https://evolutionapi-evolution-api.pqfhfk.easypanel.host/message/sendMedia/Mdk";
 const whatsappApiKey = "677BF5E74665-4E65-BA83-EF48D2111BB3";
@@ -240,6 +215,10 @@ router.post("/", async (req, res) => {
       .status(500)
       .json({ success: false, error: "Erro ao enviar comprovante" });
   }
+});
+
+router.get("/", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Webhook está pegando!" });
 });
 
 export default router;
