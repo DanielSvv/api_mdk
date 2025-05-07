@@ -247,9 +247,9 @@ cron.schedule(
   }
 );
 
-// Novo cron job diário às 18h00 para cobrança com juros
+// Novo cron job diário às 20h00 para cobrança com juros
 cron.schedule(
-  "0 18 * * *",
+  "0 20 * * *",
   async () => {
     const hoje = new Date().toISOString().split("T")[0];
     const diaSemana = new Date().getDay();
@@ -333,7 +333,7 @@ cron.schedule(
           })
           .eq("id_parcela", novaParcela.id_parcela);
         // Monta mensagens de cobrança com juros
-        const mensagemInfo = `*MDK SOLUÇÕES*\nSua Parcela Anterior Venceu!\n⚠️ Nova Cobrança com Juros Adicionais ⚠️\nParcela: ${parcela.numero_parcela}\nValor Original: R$ ${parcela.valor_parcela}\nValor com Juros: R$ ${novoValor}\nVencimento: ${hoje} às 18h00.`;
+        const mensagemInfo = `*MDK SOLUÇÕES*\nSua Parcela Anterior Venceu!\n⚠️ Nova Cobrança com Juros Adicionais ⚠️\nParcela: ${parcela.numero_parcela}\nValor Original: R$ ${parcela.valor_parcela}\nValor com Juros: R$ ${novoValor}\nVencimento: ${hoje} às 20h00.`;
         const mensagemPix = `${pixPayload}`;
         const mensagemInstrucao = `Pague copiando e colando o código acima 👆🏻`;
 
