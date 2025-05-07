@@ -164,15 +164,8 @@ cron.schedule(
           .eq("id_cliente", emprestimo.id_cliente)
           .single();
         if (!clienteDb || !clienteDb.telefone || !clienteDb.asaas_id) continue;
-        // Cria cobrança no Asaas
-        const cobranca = await asaasService.criarCobranca({
-          customer: clienteDb.asaas_id,
-          value: parcela.valor_parcela,
-          dueDate: parcela.data_vencimento,
-        });
-        // Busca o payload do QR Code PIX
-        const qrCode = await asaasService.getPixQrCode(cobranca.id);
-        const pixPayload = qrCode?.payload || null;
+        // Usar o pix_payload já salvo na parcela
+        const pixPayload = parcela.pix_payload;
         // Monta mensagens
         const mensagemInfo = `*MDK SOLUÇÕES*\nSua Parcela Vence Hoje!\nParcela: ${parcela.numero_parcela}\nValor: R$ ${parcela.valor_parcela}\nVencimento: ${parcela.data_vencimento} às 18h00.`;
         const mensagemPix = `${pixPayload}`;
@@ -405,9 +398,9 @@ cron.schedule(
   }
 );
 
-// Cron job para relatório de parcelas canceladas às 18h10
+// Cron job para relatório de parcelas canceladas às 20h05
 cron.schedule(
-  "10 18 * * *",
+  "5 20 * * *",
   async () => {
     console.log(
       "Iniciando envio de relatório de parcelas canceladas do dia:",
